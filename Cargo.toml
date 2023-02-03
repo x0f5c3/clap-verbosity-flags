@@ -28,9 +28,28 @@ pre-release-replacements = [
 [badges]
 codecov = { repository = "rust-cli/clap-verbosity-flag" }
 
+[features]
+default = ["log", "tracing"]
+log = ["dep:log"]
+tracing = ["dep:tracing-subscriber"]
+
 [dependencies]
-log = "0.4.1"
-clap = { version = "4.0.0", default-features = false, features = ["std", "derive"] }
+
+
+[dependencies.tracing]
+
+[dependencies.tracing-subscriber]
+version = "0.3.16"
+optional = true
+
+[dependencies.log]
+version = "0.4.1"
+optional = true
+
+[dependencies.clap]
+version = "4.0.0"
+default-features = false
+features = ["std", "derive"]
 
 [dev-dependencies]
 env_logger = "0.10.0"
