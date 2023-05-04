@@ -52,10 +52,8 @@ tracing = ["dep:tracing-subscriber"]
 [dependencies]
 
 
-[dependencies.tracing]
-
 [dependencies.tracing-subscriber]
-version = "0.3.16"
+version = "0.3.17"
 optional = true
 
 [dependencies.log]
@@ -68,7 +66,17 @@ default-features = false
 features = ["std", "derive"]
 
 [dev-dependencies]
-env_logger = "0.10.0"
+pretty_env_logger = "0.4.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-tracing-log = "0.1"
+
+[[example]]
+name = "log"
+path = "examples/log.rs"
+required-features = ["log"]
+
+[[example]]
+name = "tracing"
+path = "examples/tracing.rs"
+required-features = ["tracing"]
+

@@ -11,7 +11,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
-    env_logger::Builder::new()
+    pretty_env_logger::formatted_builder()
         .filter_level(cli.verbose.log_level_filter())
         .init();
 

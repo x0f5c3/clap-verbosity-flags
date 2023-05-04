@@ -1,4 +1,4 @@
-//! Control `log` level with a `--verbose` flag for your CLI
+//! Control `log` or `tracing` level with a `--verbose` flag for your CLI
 //!
 //! # Examples
 //!
@@ -33,6 +33,32 @@
 //!     .init();
 //! ```
 //!
+//! Or your tracing subscriber:
+//! ```rust,no_run
+//! # use clap::Parser;
+//! # use clap_verbosity_flag::Verbosity;
+//! #
+//! # /// Le CLI
+//! # #[derive(Debug, Parser)]
+//! # struct Cli {
+//! #     #[command(flatten)]
+//! #     verbose: Verbosity,
+//! # }
+//! let cli = Cli::parse();
+//! tracing_subscriber::fmt()
+//!     .with_max_level(cli.verbose.tracing_level_filter())
+//!     .init();
+//! ```
+//!
+//! # Features
+//!
+//! - `log` (default) enables the `log`-based logging
+//! - `tracing` enables the `tracing`-based logging
+//!
+//! # Logging
+//!
+//! ## Log
+//!
 //! By default, this will only report errors.
 //! - `-q` silences output
 //! - `-v` show warnings
@@ -43,13 +69,13 @@
 //! You can also customize the default logging level:
 //! ```rust,no_run
 //! # use clap::Parser;
-//! use clap_verbosity_flag::{Verbosity, InfoLevel};
+//! use clap_verbosity_flag::{Verbosity, LogLevel};
 //!
 //! /// Le CLI
 //! #[derive(Debug, Parser)]
 //! struct Cli {
 //!     #[command(flatten)]
-//!     verbose: Verbosity<InfoLevel>,
+//!     verbose: Verbosity<LogLevel>,
 //! }
 //! ```
 //!
@@ -57,8 +83,8 @@
 
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-pub use log::Level;
-pub use log::LevelFilter;
+#[cfg(feature = "tracing")]
+use tracing_subscriber::filter::LevelFilter;
 
 #[derive(clap::Args, Debug, Clone)]
 pub struct Verbosity<L: LogLevel = ErrorLevel> {
@@ -97,6 +123,7 @@ impl<L: LogLevel> Verbosity<L> {
         }
     }
 
+    #[cfg(feature = "log")]
     /// Get the log level.
     ///
     /// `None` means all output is disabled.
@@ -104,10 +131,12 @@ impl<L: LogLevel> Verbosity<L> {
         level_enum_log(self.verbosity())
     }
 
+    #[cfg(feature = "tracing")]
     pub fn tracing_level(&self) -> LevelFilter {
         level_enum_tracing(self.verbosity())
     }
 
+    #[cfg(feature = "log")]
     /// Get the log level filter.
     pub fn log_level_filter(&self) -> log::LevelFilter {
         level_enum_log(self.verbosity())
@@ -115,17 +144,25 @@ impl<L: LogLevel> Verbosity<L> {
             .unwrap_or(log::LevelFilter::Off)
     }
 
+    #[cfg(feature = "tracing")]
     pub fn tracing_level_filter(&self) -> LevelFilter {
         level_enum_tracing(self.verbosity())
     }
 
     /// If the user requested complete silence (i.e. not just no-logging).
     pub fn is_silent(&self) -> bool {
-        self.log_level().is_none()
+        #[cfg(feature = "log")]
+        return self.log_level().is_none();
+        #[cfg(all(feature = "tracing", not(feature = "log")))]
+        return self.tracing_level() == LevelFilter::OFF;
     }
 
     fn verbosity(&self) -> i8 {
-        level_value_log(L::default_log()) - (self.quiet as i8) + (self.verbose as i8)
+        #[cfg(feature = "log")]
+        return level_value_log(L::default_log()) - (self.quiet as i8) + (self.verbose as i8);
+        #[cfg(all(feature = "tracing", not(feature = "log")))]
+        return level_value_tracing(L::default_tracing()) - (self.quiet as i8)
+            + (self.verbose as i8);
     }
 }
 
@@ -161,24 +198,23 @@ fn level_enum_log(verbosity: i8) -> Option<log::Level> {
         1 => Some(log::Level::Warn),
         2 => Some(log::Level::Info),
         3 => Some(log::Level::Debug),
-        4..=i8::MAX => Some(log::Level::Trace),
+        4.. => Some(log::Level::Trace),
     }
 }
 
 #[cfg(feature = "tracing")]
 fn level_enum_tracing(verbosity: i8) -> LevelFilter {
     match verbosity {
-        std::i8::MIN..=-1 => LevelFilter::OFF,
-        0 => Some(LevelFilter::ERROR),
-        1 => Some(LevelFilter::WARN),
-        2 => Some(LevelFilter::INFO),
-        3 => Some(LevelFilter::DEBUG),
-        4..=std::i8::MAX => Some(LevelFilter::TRACE),
+        i8::MIN..=-1 => LevelFilter::OFF,
+        0 => LevelFilter::ERROR,
+        1 => LevelFilter::WARN,
+        2 => LevelFilter::INFO,
+        3 => LevelFilter::DEBUG,
+        4.. => LevelFilter::TRACE,
     }
 }
 
 use std::fmt;
-use tracing_subscriber::filter::LevelFilter;
 
 impl<L: LogLevel> fmt::Display for Verbosity<L> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -187,8 +223,9 @@ impl<L: LogLevel> fmt::Display for Verbosity<L> {
 }
 
 pub trait LogLevel {
+    #[cfg(feature = "log")]
     fn default_log() -> Option<log::Level>;
-
+    #[cfg(feature = "tracing")]
     fn default_tracing() -> Option<LevelFilter>;
 
     fn verbose_help() -> Option<&'static str> {
@@ -212,10 +249,12 @@ pub trait LogLevel {
 pub struct ErrorLevel;
 
 impl LogLevel for ErrorLevel {
+    #[cfg(feature = "log")]
     fn default_log() -> Option<log::Level> {
         Some(log::Level::Error)
     }
 
+    #[cfg(feature = "tracing")]
     fn default_tracing() -> Option<LevelFilter> {
         Some(LevelFilter::ERROR)
     }
@@ -225,10 +264,12 @@ impl LogLevel for ErrorLevel {
 pub struct WarnLevel;
 
 impl LogLevel for WarnLevel {
+    #[cfg(feature = "log")]
     fn default_log() -> Option<log::Level> {
         Some(log::Level::Warn)
     }
 
+    #[cfg(feature = "tracing")]
     fn default_tracing() -> Option<LevelFilter> {
         Some(LevelFilter::WARN)
     }
@@ -238,9 +279,11 @@ impl LogLevel for WarnLevel {
 pub struct InfoLevel;
 
 impl LogLevel for InfoLevel {
+    #[cfg(feature = "log")]
     fn default_log() -> Option<log::Level> {
         Some(log::Level::Info)
     }
+    #[cfg(feature = "tracing")]
     fn default_tracing() -> Option<LevelFilter> {
         Some(LevelFilter::INFO)
     }
