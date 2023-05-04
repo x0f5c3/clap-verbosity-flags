@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [2.0.1] - 2023-03-29
+
+### Features
+
+- Re-export enums from `log`
+
 ## [2.0.0] - 2022-09-28
 
 ### Breaking Changes
@@ -82,13 +88,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.2.0] - 2017-06-02
 
 <!-- next-url -->
-[Unreleased]: https://github.com/rust-cli/clap-verbosity-flag/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/rust-cli/clap-verbosity-flag/compare/v1.0.1...v2.0.0
-[1.0.1]: https://github.com/rust-cli/clap-verbosity-flag/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/rust-cli/clap-verbosity-flag/compare/v0.4.1...v1.0.0
-[0.4.1]: https://github.com/rust-cli/clap-verbosity-flag/compare/v0.4.0...v0.4.1
-[0.4.0]: https://github.com/rust-cli/clap-verbosity-flag/compare/v0.3.2...v0.4.0
-[0.3.2]: https://github.com/rust-cli/clap-verbosity-flag/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/rust-cli/clap-verbosity-flag/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/rust-cli/clap-verbosity-flag/compare/0.2.0...v0.3.0
-[0.2.0]: https://github.com/rust-cli/clap-verbosity-flag/compare/v0.1.0...0.2.0
+[Unreleased]: https://github.com/clap-rs/clap-verbosity-flag/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/clap-rs/clap-verbosity-flag/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/clap-rs/clap-verbosity-flag/compare/v1.0.1...v2.0.0
+[1.0.1]: https://github.com/clap-rs/clap-verbosity-flag/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/clap-rs/clap-verbosity-flag/compare/v0.4.1...v1.0.0
+[0.4.1]: https://github.com/clap-rs/clap-verbosity-flag/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/clap-rs/clap-verbosity-flag/compare/v0.3.2...v0.4.0
+[0.3.2]: https://github.com/clap-rs/clap-verbosity-flag/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/clap-rs/clap-verbosity-flag/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/clap-rs/clap-verbosity-flag/compare/0.2.0...v0.3.0
+[0.2.0]: https://github.com/clap-rs/clap-verbosity-flag/compare/v0.1.0...0.2.0

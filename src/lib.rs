@@ -55,6 +55,11 @@
 //!
 //! Or implement [`LogLevel`] yourself for more control.
 
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+
+pub use log::Level;
+pub use log::LevelFilter;
+
 #[derive(clap::Args, Debug, Clone)]
 pub struct Verbosity<L: LogLevel = ErrorLevel> {
     #[arg(
@@ -249,7 +254,7 @@ mod test {
     fn verify_app() {
         #[derive(Debug, clap::Parser)]
         struct Cli {
-            #[clap(flatten)]
+            #[command(flatten)]
             verbose: Verbosity,
         }
 
